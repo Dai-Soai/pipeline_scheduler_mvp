@@ -1,7 +1,8 @@
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from typing import Any
 
 from pipeline_scheduler.contract import RetrySchedule, RetryTask
+from pipeline_scheduler.delay import calculate_retry_run_at
 
 
 def utc_now_iso() -> str:
@@ -12,9 +13,7 @@ def calculate_run_at(
     generated_at: str,
     delay_seconds: int,
 ) -> str:
-    base_time = datetime.fromisoformat(generated_at.replace("Z", "+00:00"))
-    run_time = base_time + timedelta(seconds=delay_seconds)
-    return run_time.replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    return calculate_retry_run_at(generated_at, delay_seconds)
 
 
 def build_candidate_index(retry_plan: dict[str, Any]) -> dict[str, dict[str, Any]]:
