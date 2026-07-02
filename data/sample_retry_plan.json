@@ -1,0 +1,58 @@
+{
+  "pipeline_id": "pipeline-demo-001",
+  "policy": {
+    "max_attempts": 3,
+    "retryable_statuses": [
+      "failed",
+      "blocked"
+    ],
+    "backoff_strategy": "linear",
+    "base_delay_seconds": 10,
+    "max_delay_seconds": 120
+  },
+  "candidates": [
+    {
+      "node_id": "execute",
+      "node_name": "Execute Pipeline",
+      "status": "failed",
+      "current_attempt": 1,
+      "reason": "node execute failed",
+      "metadata": {
+        "error": "Execution failed"
+      }
+    },
+    {
+      "node_id": "notify",
+      "node_name": "Notify Result",
+      "status": "blocked",
+      "current_attempt": 0,
+      "reason": "node notify is blocked",
+      "metadata": {}
+    }
+  ],
+  "decisions": [
+    {
+      "node_id": "execute",
+      "decision": "retry",
+      "should_retry": true,
+      "next_attempt": 2,
+      "delay_seconds": 20,
+      "reason": "retry allowed"
+    },
+    {
+      "node_id": "notify",
+      "decision": "retry",
+      "should_retry": true,
+      "next_attempt": 1,
+      "delay_seconds": 10,
+      "reason": "retry allowed"
+    }
+  ],
+  "summary": {
+    "pipeline_id": "pipeline-demo-001",
+    "total_candidates": 2,
+    "retry_decisions": 2,
+    "blocked_decisions": 0,
+    "skipped_decisions": 0
+  }
+}
