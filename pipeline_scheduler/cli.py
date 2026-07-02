@@ -3,6 +3,7 @@ import sys
 
 from pipeline_scheduler.loader import RetryPlanLoaderError, load_retry_plan
 from pipeline_scheduler.queue import get_queue_summary
+from pipeline_scheduler.report import write_schedule_json
 from pipeline_scheduler.scheduler import build_retry_schedule
 
 
@@ -32,6 +33,16 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Show scheduled retry tasks.",
     )
+    schedule_parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Write retry schedule as JSON.",
+    )
+    schedule_parser.add_argument(
+        "--output",
+        default="outputs/schedule.json",
+        help="Output path for JSON schedule report.",
+    )
 
     return parser
 
@@ -44,6 +55,11 @@ def run_schedule(args: argparse.Namespace) -> int:
             generated_at=args.generated_at,
         )
         summary = get_queue_summary(schedule)
+
+        if args.json:
+            output_path = write_schedule_json(schedule, args.output)
+            print(f"JSON schedule written: {output_path}")
+            return 0
     except (RetryPlanLoaderError, ValueError, TypeError) as error:
         print(f"error: {error}", file=sys.stderr)
         return 1

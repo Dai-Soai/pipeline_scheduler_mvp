@@ -128,3 +128,37 @@ def test_cli_schedule_returns_error_for_missing_file(capsys):
 
     assert exit_code == 1
     assert "error:" in captured.err
+
+
+def test_cli_schedule_json_writes_report(tmp_path, capsys):
+    retry_plan_file = tmp_path / "retry_plan.json"
+    output_file = tmp_path / "schedule.json"
+
+    retry_plan_file.write_text(
+        json.dumps(sample_retry_plan()),
+        encoding="utf-8",
+    )
+
+    exit_code = main(
+        [
+            "schedule",
+            str(retry_plan_file),
+            "--generated-at",
+            "2026-07-02T20:40:00Z",
+            "--json",
+            "--output",
+            str(output_file),
+        ]
+    )
+
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "JSON schedule written:" in captured.out
+    assert output_file.exists()
+
+    payload = json.loads(output_file.read_text(encoding="utf-8"))
+
+    assert payload["pipeline_id"] == "pipeline-001"
+    assert payload["status"] == "ready"
+    assert payload["summary"]["queued_tasks"] == 1
