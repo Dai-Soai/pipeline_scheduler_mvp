@@ -1,3 +1,4 @@
+from typing import Any
 from pipeline_scheduler.contract import RetrySchedule, RetryTask
 
 
@@ -6,11 +7,7 @@ def sort_retry_tasks(tasks: list[RetryTask]) -> list[RetryTask]:
 
 
 def filter_scheduled_tasks(tasks: list[RetryTask]) -> list[RetryTask]:
-    return [
-        task
-        for task in tasks
-        if task.status == "scheduled"
-    ]
+    return [task for task in tasks if task.status == "scheduled"]
 
 
 def build_execution_queue(schedule: RetrySchedule) -> list[RetryTask]:
@@ -22,7 +19,7 @@ def count_pending_tasks(schedule: RetrySchedule) -> int:
     return len(filter_scheduled_tasks(schedule.tasks))
 
 
-def get_queue_summary(schedule: RetrySchedule) -> dict:
+def get_queue_summary(schedule: RetrySchedule) -> dict[str, Any]:
     queue = build_execution_queue(schedule)
 
     return {
